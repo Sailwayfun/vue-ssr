@@ -1,13 +1,30 @@
-// this runs in Node.js on the server.
+import express from 'express'
 import { createSSRApp } from 'vue'
-// Vue's server-rendering API is exposed under `vue/server-renderer`.
 import { renderToString } from 'vue/server-renderer'
 
-const app = createSSRApp({
-  data: () => ({ count: 1 }),
-  template: `<button @click="count++">{{ count }}</button>`
+const server = express()
+
+server.get('/', (req, res) => {
+  const app = createSSRApp({
+    data: () => ({ count: 1 }),
+    template: `<button @click="count++">{{ count }}</button>`
+  })
+
+  renderToString(app).then((html) => {
+    res.send(`
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <title>Vue SSR Example</title>
+      </head>
+      <body>
+        <div id="app">${html}</div>
+      </body>
+    </html>
+    `)
+  })
 })
 
-renderToString(app).then((html) => {
-  console.log(html)
+server.listen(3000, () => {
+  console.log('ready')
 })
